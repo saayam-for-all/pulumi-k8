@@ -1,0 +1,10 @@
+config:
+  aws:region: us-east-1
+
+  # This will be a list of kubernetes applications that are deployed
+  # saayaam:enabled-applications: 
+
+  saayaam:environment: qa 
+
+  # Needed to read useful properties from the qa infrastructure stack
+  saayaam:infra-stack: saayaam/saayaam/qa-infra
