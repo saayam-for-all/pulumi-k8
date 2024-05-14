@@ -1,0 +1,64 @@
+version: 2.1
+
+orbs:
+  pulumi: pulumi/pulumi@2.1.0
+
+jobs:
+  build:
+    docker:
+      - image: cimg/openjdk:21.0.2
+    steps:
+      - checkout
+      - run:
+          name: Update CA Certificates
+          command: |
+            sudo mkdir -p /etc/ssl/certs/java
+            sudo rm -rf /etc/ssl/certs/java/cacerts
+            sudo update-ca-certificates -f
+      - run:
+          name: Install Dependencies
+          command: |
+            sudo apt update
+            sudo apt install maven -y  
+      - run:
+          name: Build
+          command: mvn clean install  
+
+  update_infrastructure:
+    docker:
+      - image: cimg/openjdk:21.0.2
+
+    parameters:
+      stack-name:
+        type: string
+    steps:
+      - checkout
+      - pulumi/login
+      - run:
+          name: Select Stack
+          command: pulumi stack select << parameters.stack-name >>
+      - pulumi/update:
+          stack: << parameters.stack-name >>
+
+workflows:
+  version: 2
+  build-and-deploy:
+    jobs:
+      - build:
+          filters:
+            tags:
+              only: /.*/  # Build on any tag
+            branches:
+              only: /.*/  # Build on any branch
+      - update_infrastructure:
+          name: "Update QA Kubernetes applications"
+          context: "qa-context-saayaam"
+          stack-name: "saayaam/qa-k8"
+          requires:
+            - build
+          filters:
+            tags:
+              only: qa 
+            branches:
+              ignore: /.*/
+
