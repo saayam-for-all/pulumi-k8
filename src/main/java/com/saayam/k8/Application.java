@@ -1,4 +1,4 @@
-package com.saayaam.k8;
+package com.saayam.k8;
 
 import com.pulumi.core.Output;
 import com.pulumi.kubernetes.apps.v1.Deployment;
@@ -26,7 +26,8 @@ public class Application extends ComponentResource {
   public Application(String name,
                      Environment environment,
                      Output<String> image,
-                     Output<Optional<String>> databasePasswordOutput) {
+                     Output<Optional<String>> databasePasswordOutput,
+                     AlbIngressController ingressController) {
     super("timely:infrastructure:Application", name);
     CustomResourceOptions parent = CustomResourceOptions.builder().parent(this).build();
     String deploymentName = name + "-deployment";
@@ -50,7 +51,7 @@ public class Application extends ComponentResource {
 
     CreateService(serviceName, appLabels, parent);
 
-    CreateIngress(ingressName, serviceName, parent);
+    CreateIngress(ingressName, serviceName, this, ingressController);
   }
 
   private static Output<Boolean> CreateDatabaseSecretIfNeeded(
@@ -156,7 +157,10 @@ public class Application extends ComponentResource {
   }
 
   private static void CreateIngress(
-      String ingressName, String serviceName, CustomResourceOptions parent) {
+      String ingressName,
+      String serviceName,
+      Application application,
+      AlbIngressController ingressController) {
     Ingress ingress = new Ingress(ingressName,
         IngressArgs.builder()
             .metadata(ObjectMetaArgs.builder()
@@ -190,7 +194,10 @@ public class Application extends ComponentResource {
                     .build())
                 .build())
             .build(),
-        parent);
+        CustomResourceOptions.builder()
+            .parent(application)
+            .dependsOn(ingressController)
+            .build());
   }
 
   private static void CreateService(
@@ -213,6 +220,4 @@ public class Application extends ComponentResource {
             .build(),
         parent);
   }
-
-
 }

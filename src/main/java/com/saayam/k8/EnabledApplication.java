@@ -1,4 +1,4 @@
-package com.saayaam.k8;
+package com.saayam.k8;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;

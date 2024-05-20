@@ -1,4 +1,4 @@
-package com.saayaam.k8;
+package com.saayam.k8;
 
 /**
  * Supported environments by this pulumi implementation.

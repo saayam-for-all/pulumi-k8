@@ -1,4 +1,4 @@
-package com.saayaam.k8;
+package com.saayam.k8;
 
 import com.pulumi.aws.iam.*;
 import com.pulumi.core.Output;

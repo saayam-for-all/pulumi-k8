@@ -1,4 +1,4 @@
-package com.saayaam.k8;
+package com.saayam.k8;
 
 import com.google.common.collect.ImmutableList;
 import com.pulumi.Pulumi;
@@ -35,7 +35,8 @@ public class App {
                         environment,
                         Output.of(infraStack.getValueAsync(APPLICATION_PREFIX + application.name())
                             .thenApply(repositoryURL -> repositoryURL + ":" + application.tag())),
-                        ctx.config().getSecret(application.name() + "-database-password")
+                        ctx.config().getSecret(application.name() + "-database-password"),
+                        albIngressController
                     ));
         });
     }
